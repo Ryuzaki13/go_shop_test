@@ -1,0 +1,31 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/assets/style.css">
+    <title>Title</title>
+</head>
+<body>
+
+<div>
+    <input type="text" id="CategoryName">
+    <button onclick="CreateCategory()">Создать категорию</button>
+</div>
+
+<div>
+    <input type="text" id="ProductName">
+    <textarea id="ProductDesc"></textarea>
+    <button onclick="CreateProduct()">Создать продукт</button>
+</div>
+
+<div>
+    <select id="SelectProduct"></select>
+    <select id="SelectCategory"></select>
+    <button onclick="AddCategoryToProduct()">Добавить товару категорию</button>
+</div>
+
+<script src="/assets/script.js"></script>
+</body>
+</html>
+{{end}}
