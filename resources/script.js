@@ -11,13 +11,16 @@ function CreateCategory() {
 function CreateProduct() {
     let name = document.querySelector("#ProductName");
     let desc = document.querySelector("#ProductDesc");
+    let image = document.querySelector("#ProductImage");
+
+    let data = new FormData();
+    data.set("File", image.files[0], image.files[0].name);
+    data.set("Name", name.value);
+    data.set("Desc", desc.value);
 
     let xhr = new XMLHttpRequest();
     xhr.open("PUT", "/product");
-    xhr.send(JSON.stringify({
-        name: name.value,
-        desc: desc.value,
-    }));
+    xhr.send(data);
 }
 
 function AddCategoryToProduct() {

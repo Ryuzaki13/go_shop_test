@@ -13,7 +13,7 @@ func Connect() bool {
 	var e error
 	connection, e = sql.Open("postgres",
 		`host=127.0.0.1
-		port=5432
+		port=5433
 		user=postgres
 		password=1234
 		dbname=shop

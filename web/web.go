@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +26,7 @@ func Run() {
 
 	router.LoadHTMLGlob("html/*.html")
 	router.Static("/assets/", "resources")
+	router.Use(static.Serve("/images/", static.LocalFile("data/", false)))
 
 	router.GET("/", handlerIndex)
 	router.PUT("/category", handlerCreateCategory)
@@ -35,7 +37,7 @@ func Run() {
 	router.GET("/category", handlerGetCategory)
 	router.GET("/product", handlerGetProduct)
 
-	router.Run("127.0.0.1:8080")
+	_ = router.Run("127.0.0.1:8080")
 }
 
 func handlerIndex(c *gin.Context) {
@@ -62,19 +64,42 @@ func handlerCreateCategory(c *gin.Context) {
 }
 
 func handlerCreateProduct(c *gin.Context) {
-	type Product struct {
-		Name string
-		Desc string
-	}
-	var product Product
-	e := c.BindJSON(&product)
+	form, e := c.MultipartForm()
 	if e != nil {
 		fmt.Println("ERROR:", e)
 		c.JSON(400, e.Error())
 		return
 	}
 
-	_, e = connection.Exec(`INSERT INTO "ProductDesc"("Name", "Description") VALUES ($1, $2)`, product.Name, product.Desc)
+	var filename string
+
+	files := form.File["File"]
+	//for _, file := range files {
+	if len(files) == 1 {
+		e = c.SaveUploadedFile(files[0], "data/"+files[0].Filename)
+		if e != nil {
+			fmt.Println("ERROR:", e)
+			c.JSON(400, e.Error())
+			return
+		}
+		filename = "data/" + files[0].Filename
+	}
+	//}
+
+	name := form.Value["Name"]
+	desc := form.Value["Desc"]
+
+	if len(name) == 0 || len(desc) == 0 {
+		fmt.Println("ERROR:", e)
+		c.JSON(400, e.Error())
+		return
+	}
+
+	if len(filename) == 0 {
+		_, e = connection.Exec(`INSERT INTO "ProductDesc"("Name", "Description", "Image") VALUES ($1, $2, $3)`, name[0], desc[0], nil)
+	} else {
+		_, e = connection.Exec(`INSERT INTO "ProductDesc"("Name", "Description", "Image") VALUES ($1, $2, $3)`, name[0], desc[0], filename)
+	}
 	if e != nil {
 		fmt.Println("ERROR:", e)
 		c.JSON(400, e.Error())
